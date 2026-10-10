@@ -25,6 +25,10 @@ class AppStrings {
   static const String credit = 'Credit';
   static const String profile = 'Profile';
 
+  // Onboarding
+  static const String onboardingTitle = 'spend smarter\nsave more'; 
+
+
   // Dashboard
   static const String greeting = 'Good afternoon,';
   static const String totalBalance = 'Total Balance';

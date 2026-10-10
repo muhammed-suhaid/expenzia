@@ -78,7 +78,7 @@ class AppTheme {
           elevation: 0,
           textStyle: AppTextStyles.button,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppDimensions.radiusPill),
+            borderRadius: BorderRadius.circular(26), 
           ),
         ),
       ),
