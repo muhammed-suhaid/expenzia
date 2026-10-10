@@ -38,18 +38,18 @@ class AppStrings {
   static const String transactionHistory = 'Transaction History';
 
   // Expense form
+  static const String transaction = 'Transaction';
   static const String editTransaction = 'Edit Transaction';
   static const String transactionType = 'Transaction Type';
+  static const String name = 'Name';
+  static const String enterName = 'Enter transaction name';
   static const String expenseTitle = 'Expense Title';
   static const String amount = 'Amount';
+  static const String enterAmount = '0.00';
   static const String category = 'Category';
   static const String date = 'Date';
   static const String description = 'Description';
-  static const String enterTitle = 'Enter expense title';
-  static const String enterAmount = 'Enter amount';
-  static const String selectCategory = 'Select category';
-  static const String selectDate = 'Select date';
-  static const String optionalDescription = 'Description (optional)';
+  static const String selectTransactionType = 'Select transaction type';
 
   // Expense categories
   static const String food = 'Food';
@@ -65,6 +65,10 @@ class AppStrings {
   static const String expenseType = 'Expense';
   static const String incomeType = 'Income';
 
+  // Form actions
+  static const String currencySymbol = '\$';
+  static const String formValidated = 'Form validated successfully';
+
   // Credit
   static const String creditType = 'Credit Type';
   static const String to = 'To';
@@ -79,7 +83,9 @@ class AppStrings {
 
   // Validation
   static const String requiredField = 'This field is required.';
-  static const String invalidAmount = 'Enter a valid amount greater than zero.';
+  static const String nameRequired = 'Please enter a name.';
+  static const String amountRequired = 'Please enter an amount.';
+  static const String invalidAmount = 'Enter a valid positive amount.';
   static const String titleRequired = 'Please enter a title.';
   static const String categoryRequired = 'Please select a category.';
   static const String dateRequired = 'Please select a date.';
