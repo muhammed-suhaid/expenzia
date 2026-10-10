@@ -1,3 +1,4 @@
+import 'package:expenzia/features/transactions/model/transaction_model.dart';
 import 'package:flutter/material.dart';
 
 import '../../../app/theme/app_colors.dart';
@@ -8,6 +9,7 @@ import '../../../shared/widgets/app_button.dart';
 import '../../../shared/widgets/app_date_picker.dart';
 import '../../../shared/widgets/app_dropdown.dart';
 import '../../../shared/widgets/app_text_field.dart';
+import '../services/transaction_database.dart';
 
 class EditTransactionScreen extends StatefulWidget {
   final int transactionId;
@@ -58,25 +60,56 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
     super.dispose();
   }
 
+  bool _isSaving = false;
+
   Future<void> _updateTransaction() async {
     FocusScope.of(context).unfocus();
 
-    if (!_formKey.currentState!.validate()) return;
+    if (_isSaving || !_formKey.currentState!.validate()) return;
 
-    final name = _nameController.text.trim();
     final amount = double.tryParse(_amountController.text.trim());
 
     if (amount == null || !amount.isFinite || amount <= 0) return;
 
-    // TODO: Update this transaction in SQLite using widget.transactionId.
-    // Values to update:
-    // name, amount, _transactionType, _selectedDate.
+    setState(() => _isSaving = true);
 
-    if (!mounted) return;
+    try {
+      final transaction = TransactionModel(
+        id: widget.transactionId,
+        title: _nameController.text.trim(),
+        amount: amount,
+        type: _transactionType,
+        date: _selectedDate,
+      );
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text(AppStrings.formValidated)));
+      final updatedRows = await TransactionDatabase.instance.update(
+        transaction,
+      );
+
+      if (!mounted) return;
+
+      if (updatedRows == 0) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Transaction not found.')));
+        return;
+      }
+
+      Navigator.of(context).pop(true);
+    } catch (error, stackTrace) {
+      debugPrint('Failed to update transaction: $error');
+      debugPrintStack(stackTrace: stackTrace);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text(AppStrings.databaseError)));
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'package:expenzia/features/transactions/model/transaction_model.dart';
 import 'package:flutter/material.dart';
 
 import '../../../app/theme/app_colors.dart';
@@ -8,6 +9,7 @@ import '../../../shared/widgets/app_button.dart';
 import '../../../shared/widgets/app_date_picker.dart';
 import '../../../shared/widgets/app_dropdown.dart';
 import '../../../shared/widgets/app_text_field.dart';
+import '../services/transaction_database.dart';
 
 class TransactionScreen extends StatefulWidget {
   const TransactionScreen({super.key});
@@ -18,12 +20,12 @@ class TransactionScreen extends StatefulWidget {
 
 class _TransactionScreenState extends State<TransactionScreen> {
   final _formKey = GlobalKey<FormState>();
-
   final _nameController = TextEditingController();
   final _amountController = TextEditingController();
 
   String _transactionType = AppStrings.expenseType;
   DateTime _selectedDate = DateTime.now();
+  bool _isSaving = false;
 
   @override
   void dispose() {
@@ -32,18 +34,44 @@ class _TransactionScreenState extends State<TransactionScreen> {
     super.dispose();
   }
 
-  void _saveTransaction() {
+  Future<void> _saveTransaction() async {
     FocusScope.of(context).unfocus();
 
-    if (!_formKey.currentState!.validate()) {
-      return;
+    if (_isSaving || !_formKey.currentState!.validate()) return;
+
+    final transaction = TransactionModel(
+      title: _nameController.text.trim(),
+      amount: double.parse(_amountController.text.trim()),
+      type: _transactionType,
+      date: _selectedDate,
+    );
+
+    setState(() => _isSaving = true);
+
+    try {
+      await TransactionDatabase.instance.insert(transaction);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text(AppStrings.expenseSaved)));
+
+      Navigator.of(context).pop(true);
+    } catch (error, stackTrace) {
+      debugPrint('Failed to save transaction: $error');
+      debugPrintStack(stackTrace: stackTrace);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text(AppStrings.databaseError)));
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
     }
-
-    // TODO: Save the transaction to SQLite.
-
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text(AppStrings.formValidated)));
   }
 
   @override
@@ -77,7 +105,6 @@ class _TransactionScreenState extends State<TransactionScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Transaction type
                         AppDropdown<String>(
                           label: AppStrings.transactionType,
                           value: _transactionType,
@@ -93,16 +120,10 @@ class _TransactionScreenState extends State<TransactionScreen> {
                           ],
                           onChanged: (value) {
                             if (value == null) return;
-
-                            setState(() {
-                              _transactionType = value;
-                            });
+                            setState(() => _transactionType = value);
                           },
                         ),
-
                         const SizedBox(height: AppDimensions.spacingLG),
-
-                        // Name
                         AppTextField(
                           label: AppStrings.name,
                           hintText: AppStrings.enterName,
@@ -111,14 +132,10 @@ class _TransactionScreenState extends State<TransactionScreen> {
                             if (value == null || value.trim().isEmpty) {
                               return AppStrings.nameRequired;
                             }
-
                             return null;
                           },
                         ),
-
                         const SizedBox(height: AppDimensions.spacingLG),
-
-                        // Amount
                         AppTextField(
                           label: AppStrings.amount,
                           hintText: AppStrings.enterAmount,
@@ -141,13 +158,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                           ),
                           suffix: TextButton(
                             onPressed: _amountController.clear,
-                            child: const Text(
-                              AppStrings.clear,
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontSize: 12,
-                              ),
-                            ),
+                            child: const Text(AppStrings.clear),
                           ),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
@@ -161,21 +172,15 @@ class _TransactionScreenState extends State<TransactionScreen> {
                                 amount <= 0) {
                               return AppStrings.invalidAmount;
                             }
-
                             return null;
                           },
                         ),
-
                         const SizedBox(height: AppDimensions.spacingLG),
-
-                        // Date
                         AppDatePicker(
                           label: AppStrings.date,
                           value: _selectedDate,
                           onChanged: (date) {
-                            setState(() {
-                              _selectedDate = date;
-                            });
+                            setState(() => _selectedDate = date);
                           },
                         ),
                       ],
@@ -183,8 +188,6 @@ class _TransactionScreenState extends State<TransactionScreen> {
                   ),
                 ),
               ),
-
-              // Save button
               Padding(
                 padding: const EdgeInsets.fromLTRB(
                   AppDimensions.screenPadding,
@@ -194,6 +197,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                 ),
                 child: AppButton(
                   label: AppStrings.save,
+                  isLoading: _isSaving,
                   onPressed: _saveTransaction,
                 ),
               ),
