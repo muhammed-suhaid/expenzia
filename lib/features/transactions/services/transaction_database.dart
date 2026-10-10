@@ -87,6 +87,11 @@ class TransactionDatabase {
     return db.update(tableName, values, where: 'id = ?', whereArgs: [id]);
   }
 
+  Future<int> clearAll() async {
+    final db = await database;
+    return db.delete('transactions');
+  }
+
   Future<int> delete(int id) async {
     final db = await database;
 
