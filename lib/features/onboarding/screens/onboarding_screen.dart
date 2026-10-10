@@ -5,11 +5,16 @@ import '../../../app/theme/app_dimensions.dart';
 import '../../../app/theme/app_text_styles.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../shared/widgets/app_button.dart';
+import '../../navigation/screens/main_navigation_screen.dart';
 
 class OnboardingScreen extends StatelessWidget {
-  final VoidCallback? onGetStarted;
+  const OnboardingScreen({super.key});
 
-  const OnboardingScreen({super.key, this.onGetStarted});
+  void _navigateToHome(BuildContext context) {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(builder: (_) => const MainNavigationScreen()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +54,7 @@ class OnboardingScreen extends StatelessWidget {
                       const Spacer(),
                       AppButton(
                         label: AppStrings.getStarted,
-                        onPressed: onGetStarted,
+                        onPressed: () => _navigateToHome(context),
                       ),
                       const SizedBox(height: AppDimensions.spacingXL),
                     ],

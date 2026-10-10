@@ -26,8 +26,7 @@ class AppStrings {
   static const String profile = 'Profile';
 
   // Onboarding
-  static const String onboardingTitle = 'spend smarter\nsave more'; 
-
+  static const String onboardingTitle = 'spend smarter\nsave more';
 
   // Dashboard
   static const String greeting = 'Good afternoon,';

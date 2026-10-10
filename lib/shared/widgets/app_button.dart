@@ -87,11 +87,20 @@ class AppButton extends StatelessWidget {
                 ],
               ),
               child: ElevatedButton(
-                onPressed: onPressed,
-                child: Text(
-                  label,
-                  style: TextStyle(color: Colors.white, fontSize: 18),
+                onPressed: isLoading ? null : onPressed,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  disabledBackgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      AppDimensions.radiusPill,
+                    ),
+                  ),
                 ),
+                child: child,
               ),
             ),
     );
